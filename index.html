@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GTC Taipei English Talks Planner</title>
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --bg-strong: #efe4d2;
+      --panel: rgba(255,255,255,0.82);
+      --panel-strong: rgba(255,255,255,0.94);
+      --text: #1f2330;
+      --muted: #667085;
+      --line: rgba(31,35,48,0.12);
+      --shadow: 0 14px 40px rgba(72, 54, 21, 0.12);
+      --steffen: #0f8b8d;
+      --steffen-soft: rgba(15, 139, 141, 0.12);
+      --grisha: #ff7a59;
+      --grisha-soft: rgba(255, 122, 89, 0.13);
+      --both: linear-gradient(135deg, rgba(15, 139, 141, 0.16), rgba(255, 122, 89, 0.16));
+      --focus: #7356ff;
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255,122,89,0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(15,139,141,0.18), transparent 26%),
+        linear-gradient(180deg, #fcf7ef 0%, var(--bg) 45%, #f3ebdd 100%);
+    }
+    .shell { max-width: 1280px; margin: 0 auto; padding: 24px 18px 80px; }
+    .hero {
+      position: sticky; top: 0; z-index: 20;
+      margin: -24px -18px 20px; padding: 18px 18px 16px;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(180deg, rgba(252,247,239,0.92), rgba(252,247,239,0.76));
+      border-bottom: 1px solid rgba(31,35,48,0.08);
+    }
+    .hero-grid { display: grid; gap: 16px; grid-template-columns: 1.3fr 1fr; align-items: end; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 12px; border-radius: 999px;
+      background: rgba(31,35,48,0.06); color: var(--muted); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    h1 {
+      margin: 14px 0 8px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      line-height: 0.96;
+      letter-spacing: -0.02em;
+      max-width: 12ch;
+    }
+    .hero p { margin: 0; color: #4b5565; max-width: 62ch; line-height: 1.5; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; align-items: center; }
+    .toggle {
+      display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px;
+      border-radius: 999px; background: var(--panel-strong); border: 1px solid var(--line); box-shadow: var(--shadow);
+      font-size: 13px; color: var(--text);
+    }
+    .toggle input { accent-color: var(--focus); }
+    .focusbox {
+      min-width: 260px;
+      padding: 12px 14px; border-radius: 16px; border: 1px solid rgba(115,86,255,0.18);
+      background: linear-gradient(135deg, rgba(115,86,255,0.12), rgba(255,255,255,0.88));
+      box-shadow: var(--shadow);
+    }
+    .focusbox strong { display: block; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: #5642b9; margin-bottom: 4px; }
+    .focusbox span { display: block; font-size: 13px; color: #3b4260; line-height: 1.4; }
+    .focus-actions { display: flex; gap: 8px; align-items: center; }
+    button { appearance: none; border: 0; cursor: pointer; font: inherit; color: inherit; }
+    .jump {
+      padding: 11px 14px; border-radius: 999px;
+      background: linear-gradient(135deg, #1d7dff, #7356ff);
+      color: white; box-shadow: 0 10px 28px rgba(80, 70, 160, 0.28);
+    }
+    .subtle {
+      padding: 10px 12px; border-radius: 999px; background: var(--panel-strong); border: 1px solid var(--line);
+      box-shadow: var(--shadow); color: var(--muted);
+    }
+    .table-wrap { overflow: hidden; border-radius: 24px; border: 1px solid rgba(31,35,48,0.08); box-shadow: var(--shadow); background: rgba(255,255,255,0.62); }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    thead th {
+      text-align: left; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+      padding: 14px 16px; background: rgba(31,35,48,0.04); border-bottom: 1px solid var(--line);
+    }
+    colgroup col:first-child { width: 220px; }
+    tbody tr { border-bottom: 1px solid rgba(31,35,48,0.08); }
+    tbody tr:last-child { border-bottom: 0; }
+    td { vertical-align: top; }
+    .date-cell { padding: 18px 16px; background: rgba(255,255,255,0.4); }
+    .date-card { position: sticky; top: 122px; }
+    .day-tag { font-size: 12px; font-weight: 700; color: #8a5a23; text-transform: uppercase; letter-spacing: 0.06em; }
+    .slot { margin-top: 10px; font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
+    .tiny { margin-top: 6px; color: var(--muted); font-size: 13px; }
+    .info-cell { padding: 14px; }
+    .talk-card {
+      position: relative; border-radius: 20px; padding: 18px;
+      background: var(--panel); border: 1px solid rgba(31,35,48,0.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+    .talk-card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 6px; border-radius: 20px 0 0 20px; background: #d3d7df; }
+    .talk-card.attend-steffen::before { background: var(--steffen); }
+    .talk-card.attend-grisha::before { background: var(--grisha); }
+    .talk-card.attend-both::before { background: linear-gradient(180deg, var(--steffen), var(--grisha)); }
+    .talk-card.active-now { outline: 2px solid rgba(115,86,255,0.32); background: linear-gradient(135deg, rgba(115,86,255,0.09), rgba(255,255,255,0.9)); }
+    .talk-head { display: flex; gap: 14px; justify-content: space-between; align-items: flex-start; }
+    .talk-title { margin: 0; font-size: clamp(1.05rem, 2vw, 1.45rem); line-height: 1.15; }
+    .meta { margin-top: 8px; color: var(--muted); font-size: 14px; line-height: 1.45; }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .badge { padding: 7px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: rgba(31,35,48,0.06); color: #475063; }
+    .badge.steffen { background: var(--steffen-soft); color: var(--steffen); }
+    .badge.grisha { background: var(--grisha-soft); color: var(--grisha); }
+    .badge.both { background: var(--both); color: #5a4067; }
+    .preview { margin-top: 12px; color: #4d5668; font-size: 14px; line-height: 1.55; }
+    .info-actions { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px; }
+    .more { padding: 10px 12px; border-radius: 12px; background: rgba(31,35,48,0.06); }
+    .person-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .person { padding: 14px; border-radius: 16px; border: 1px solid rgba(31,35,48,0.08); background: rgba(255,255,255,0.72); }
+    .person.steffen.go { background: linear-gradient(135deg, rgba(15,139,141,0.15), rgba(255,255,255,0.92)); border-color: rgba(15,139,141,0.24); }
+    .person.grisha.go { background: linear-gradient(135deg, rgba(255,122,89,0.16), rgba(255,255,255,0.92)); border-color: rgba(255,122,89,0.24); }
+    .person.no { background: rgba(101,110,140,0.06); }
+    .person-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .person-name { font-weight: 800; }
+    .score { font-size: 12px; color: var(--muted); }
+    .decision { margin-top: 10px; font-weight: 700; font-size: 14px; }
+    .reason { margin-top: 8px; color: #495366; font-size: 13px; line-height: 1.5; }
+    .keyline { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { font-size: 11px; padding: 5px 8px; border-radius: 999px; background: rgba(31,35,48,0.06); color: #526075; }
+    .hide-steffen .person.steffen { display: none; }
+    .hide-grisha .person.grisha { display: none; }
+    .hide-steffen.hide-grisha .person-grid { display: none; }
+    dialog { border: 0; padding: 0; border-radius: 24px; width: min(860px, calc(100vw - 24px)); box-shadow: 0 28px 80px rgba(15,23,42,0.28); }
+    dialog::backdrop { background: rgba(22, 26, 43, 0.55); backdrop-filter: blur(6px); }
+    .modal { background: #fffdf9; color: var(--text); }
+    .modal-top { padding: 20px 22px 8px; display: flex; justify-content: space-between; gap: 16px; align-items: start; }
+    .modal-top h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.45rem, 3vw, 2.2rem); line-height: 1.05; max-width: 18ch; }
+    .close { padding: 10px 12px; border-radius: 999px; background: rgba(31,35,48,0.06); color: var(--muted); }
+    .modal-meta { padding: 0 22px 14px; color: var(--muted); line-height: 1.5; }
+    .modal-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 0; border-top: 1px solid var(--line); }
+    .modal-section { padding: 20px 22px 24px; }
+    .modal-section + .modal-section { border-left: 1px solid var(--line); background: rgba(31,35,48,0.03); }
+    .modal h3 { margin: 0 0 12px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .modal p { margin: 0; line-height: 1.68; color: #384153; }
+    .stack { display: grid; gap: 14px; }
+    .rationale { padding: 14px; border-radius: 16px; background: rgba(255,255,255,0.82); border: 1px solid rgba(31,35,48,0.08); }
+    .rationale.go.steffen { border-color: rgba(15,139,141,0.24); background: linear-gradient(135deg, rgba(15,139,141,0.12), rgba(255,255,255,0.92)); }
+    .rationale.go.grisha { border-color: rgba(255,122,89,0.24); background: linear-gradient(135deg, rgba(255,122,89,0.12), rgba(255,255,255,0.92)); }
+    .legend { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .footer-note { margin-top: 14px; color: var(--muted); font-size: 12px; }
+    @media (max-width: 980px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .toolbar { justify-content: flex-start; }
+      colgroup col:first-child { width: 150px; }
+      .modal-grid { grid-template-columns: 1fr; }
+      .modal-section + .modal-section { border-left: 0; border-top: 1px solid var(--line); }
+    }
+    @media (max-width: 720px) {
+      .shell { padding: 14px 10px 54px; }
+      .hero { margin: -14px -10px 14px; padding: 14px 10px 12px; }
+      .table-wrap { border-radius: 18px; }
+      table, tbody, tr, td { display: block; width: 100%; }
+      thead, colgroup { display: none; }
+      .date-cell { padding: 14px 14px 0; }
+      .date-card { position: static; }
+      .info-cell { padding: 10px 14px 16px; }
+      .person-grid { grid-template-columns: 1fr; }
+      .focusbox { min-width: 0; width: 100%; }
+      .focus-actions { width: 100%; justify-content: stretch; }
+      .jump, .subtle { flex: 1; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell" id="appRoot">
+    <div class="hero">
+      <div class="hero-grid">
+        <div>
+          <span class="eyebrow">GTC Taipei 2026 · English Talks Planner</span>
+          <h1>Steffen and Grisha schedule map</h1>
+          <p>A compact table for the English talks, tuned to your actual profiles. Colors show who should attend. Tap into any row for the full abstract, rationale, and the overlap-aware decision logic.</p>
+        </div>
+        <div class="toolbar">
+          <label class="toggle"><input type="checkbox" id="toggleSteffen" checked> Show Steffen</label>
+          <label class="toggle"><input type="checkbox" id="toggleGrisha" checked> Show Grisha</label>
+          <div class="focusbox">
+            <strong>Current Taipei Focus</strong>
+            <span id="focusNow">Checking local event time…</span>
+          </div>
+          <div class="focus-actions">
+            <button class="jump" id="jumpNow">Jump to now</button>
+            <button class="subtle" id="expandNow">Open current detail</button>
+          </div>
+        </div>
+      </div>
+      <div class="legend">
+        <span class="badge steffen">Steffen should attend</span>
+        <span class="badge grisha">Grisha should attend</span>
+        <span class="badge both">best shared pick</span>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <colgroup><col><col></colgroup>
+        <thead>
+          <tr><th>Date</th><th>Talk info, profile fit, and attendance decision</th></tr>
+        </thead>
+        <tbody id="plannerBody"></tbody>
+      </table>
+    </div>
+    <p class="footer-note">All times shown in Taiwan time (UTC+8). Attendance suggestions are profile-aware and overlap-aware, not a blanket ranking.</p>
+  </div>
+
+  <dialog id="detailDialog">
+    <div class="modal" id="modalContent"></div>
+  </dialog>
+
+  <script id="talk-data" type="application/json">[{"filename": "stw61029-ai-factories-for-self-evolving-agents-powering-openclaw-with-nvidia.md", "dayLabel": "Wednesday, June 3, 2026", "slotLabel": "9:30 AM - 10:15 AM", "title": "AI Factories for Self-Evolving Agents: Powering OpenClaw With NVIDIA", "speaker": "Anne Hecht; Kaushik Shirhatti", "room": "Room 201 D+E+F", "abstract": "AI has reached an inflection point. Through platforms like OpenClaw, always-on \"claw\" agents can now continuously learn, adapt, and generate value in real time—redefining how work gets done. For enterprises, this means faster drug discovery, 24/7 customer operations, and compounding productivity and innovation through decentralized agent creation. \n\nBut scaling this transformation demands more than models: It requires purpose-built infrastructure. NVIDIA and its global partners are building AI factories that combine accelerated computing, networking, AI-ready storage, and a validated software ecosystem to create a continuous AI production system. \n\nFrom NVIDIA DGX Spark and Station to NVIDIA RTX PRO, HGX, and NVL72 systems—delivered via OEMs, cloud providers, and ISVs—AI factories offer the security, efficiency, and control enterprises need to operationalize intelligence at scale.", "keywords": ["agentic AI", "OpenClaw", "self-evolving agents", "AI factories", "scientific workflows"], "steffenKeywords": ["MCP agents", "nanoclaw", "agent tooling for science", "long-running workflows"], "grishaKeywords": ["sava", "scope", "agent design", "self-improving systems", "broad strategy"], "steffenScore": 10, "grishaScore": 10, "steffenGo": true, "grishaGo": true, "startIso": "2026-06-03T09:30:00+08:00", "endIso": "2026-06-03T10:15:00+08:00"}, {"filename": "stw61026-robotic-factories-are-here-design-build-operate-and-scale-with-physical-ai.md", "dayLabel": "Wednesday, June 3, 2026", "slotLabel": "10:30 AM - 11:15 AM", "title": "Robotic Factories Are Here: Design, Build, Operate, and Scale With Physical AI", "speaker": "Deepu Talla", "room": "Banquet Hall", "abstract": "The era of the robotic factory has arrived. Join Deepu Talla, VP of Robotics and Edge Computing at NVIDIA, as he explores how NVIDIA's physical AI platform is enabling the world's leading electronics manufacturers to reimagine how factories are designed, built, and run. Learn how the three computers powering physical AI scale robots from data collection and simulation to real-world deployment—and how robots are developing the ability to reason and adapt like humans. Explore how digital twins, built with NVIDIA Omniverse and AI physics libraries, shape factory design—and how humanoid robot fleets, developed with the NVIDIA GR00T open platform, bring those factories to life. See how vision AI agents, powered by NVIDIA Metropolis and Cosmos, deliver intelligence and outside-in safety—and how long-running AI agents accelerate every step of the journey.\n\nFor more GTC Taipei sessions like this, make sure to explore our Physical AI Days programming.", "keywords": ["physical AI", "robotics", "factory automation", "deployment", "scale"], "steffenKeywords": ["simulation", "physical systems", "digital twins", "embodied workflows"], "grishaKeywords": ["creative systems thinking", "robotics as important frontier", "cross-domain inspiration"], "steffenScore": 8, "grishaScore": 7, "steffenGo": true, "grishaGo": false, "startIso": "2026-06-03T10:30:00+08:00", "endIso": "2026-06-03T11:15:00+08:00"}, {"filename": "stw61057-developing-high-performance-software-with-cuda-python.md", "dayLabel": "Wednesday, June 3, 2026", "slotLabel": "10:30 AM - 11:15 AM", "title": "Developing High-Performance Software With CUDA Python", "speaker": "Rob Armstrong", "room": "Phoenix Hall", "abstract": "With CUDA Python officially at version 1.0, the CUDA ecosystem is fully enabled and optimized for Python developers targeting NVIDIA GPUs. Join us to learn best practices, tips, and techniques for maximizing performance in low-level GPU kernel development in Python to tackle high-performance computing challenges in AI and beyond.", "keywords": ["CUDA Python", "GPU programming", "performance", "kernels", "Python tooling"], "steffenKeywords": ["high-performance scientific software", "GPU acceleration", "practical tooling"], "grishaKeywords": ["useful but less central than agent and science talks", "broad technical literacy"], "steffenScore": 6, "grishaScore": 5, "steffenGo": false, "grishaGo": true, "startIso": "2026-06-03T10:30:00+08:00", "endIso": "2026-06-03T11:15:00+08:00"}, {"filename": "stw61054-ai-factory-tokenomics-explained.md", "dayLabel": "Wednesday, June 3, 2026", "slotLabel": "11:30 AM - 12:15 PM", "title": "AI Factory Tokenomics Explained", "speaker": "Dion Harris", "room": "Room 201 D+E+F", "abstract": "The economics of AI inference are reshaping how organizations plan, build, and scale their AI investments. This session unpacks the critical levers—from silicon to software—that determine AI token output and directly impact the bottom line. Learn how NVIDIA uses an extreme codesign approach across NVIDIA CUDA-X, MGX, and DSX to maximize tokens per watt and minimize cost per token. See how NVIDIA and its partners are unlocking new opportunities across the ecosystem and enabling enterprises to profitably scale AI revenue.", "keywords": ["AI economics", "inference cost", "tokenomics", "scaling", "planning"], "steffenKeywords": ["helpful context for deciding what to run locally or remotely"], "grishaKeywords": ["helpful context for product and infrastructure choices", "broad importance"], "steffenScore": 5, "grishaScore": 5, "steffenGo": false, "grishaGo": true, "startIso": "2026-06-03T11:30:00+08:00", "endIso": "2026-06-03T12:15:00+08:00"}, {"filename": "stw61058-writing-and-optimizing-custom-kernels-with-cuda-tile.md", "dayLabel": "Wednesday, June 3, 2026", "slotLabel": "11:30 AM - 12:15 PM", "title": "Writing and Optimizing Custom Kernels With CUDA Tile", "speaker": "Rob Armstrong", "room": "Phoenix Hall", "abstract": "CUDA Tile is a performant, concise, and portable approach to building high-performance kernels on NVIDIA GPUs, especially linear algebra workloads that leverage Tensor Cores. In this session, we'll cover key optimization strategies, programming techniques, and best practices for developing efficient kernels for AI and beyond. Learn how the compiler maps algorithms onto GPU hardware and how to guide and control that mapping to maximize performance. We'll also demonstrate how CUDA Tile enables seamless portability across GPU architectures.", "keywords": ["CUDA Tile", "custom kernels", "tensor cores", "linear algebra", "optimization"], "steffenKeywords": ["performance engineering", "possible simulation acceleration ideas"], "grishaKeywords": ["technical depth with weaker direct overlap", "still useful background"], "steffenScore": 5, "grishaScore": 4, "steffenGo": true, "grishaGo": false, "startIso": "2026-06-03T11:30:00+08:00", "endIso": "2026-06-03T12:15:00+08:00"}, {"filename": "stw61023-long-running-ai-agents-the-next-breakthrough-in-enterprise-work.md", "dayLabel": "Wednesday, June 3, 2026", "slotLabel": "1:30 PM - 2:15 PM", "title": "Long-Running AI Agents: The Next Breakthrough in Enterprise Work", "speaker": "Justin Boitano", "room": "Banquet Hall", "abstract": "The next generation of AI agents doesn't just respond. It plans, reasons across modalities, and operates continuously over hours and days to complete real work. Sustaining complex, multi-step work over extended periods, with agent frameworks like OpenClaw and Hermes, demands a fundamentally different architecture. One that’s built for memory, planning, and maintaining context and continuity over time, not just fast responses. Explore how NVIDIA is building the model infrastructure, open source tools, and AI factory foundation making long-running intelligent agents real and production-ready.\n\nThis session is part of Nemotron Days: a curated set of GTC Taipei sessions focused on agentic AI, claws, and long-running agents.", "keywords": ["long-running agents", "planning", "memory", "context continuity", "enterprise workflows"], "steffenKeywords": ["agent tooling for science", "multi-step automation", "persistent workflows"], "grishaKeywords": ["agent scaffolds", "planning systems", "design for continuous work", "general AI direction"], "steffenScore": 9, "grishaScore": 9, "steffenGo": false, "grishaGo": true, "startIso": "2026-06-03T13:30:00+08:00", "endIso": "2026-06-03T14:15:00+08:00"}, {"filename": "stw61024-healthcare-in-the-age-of-agentic-systems-and-physical-ai-from-intelligent-devices-to-autonomous-care.md", "dayLabel": "Wednesday, June 3, 2026", "slotLabel": "1:30 PM - 2:15 PM", "title": "Healthcare in the Age of Agentic Systems and Physical AI: From Intelligent Devices to Autonomous Care", "speaker": "David Niewolny", "room": "Room 201 A+B+C", "abstract": "Healthcare is undergoing a platform shift, where AI moves beyond training models to deploying intelligent systems that can perceive, reason, and act in the physical world. As agentic AI goes mainstream and physical AI expands across robotics, science, and healthcare, intelligent machines and digital agents are transforming how medical devices, hospitals, and life sciences are built and operated.\n\nAt GTC Taipei, NVIDIA will showcase how software-defined medical devices, hospital robotics, digital agents, and AI-driven life sciences are being built on a unified accelerated computing platform that spans AI factories, simulation and digital twins, and real-time edge AI. Together with global industry leaders, these technologies are enabling autonomous healthcare systems that improve efficiency, expand access to care, and accelerate discovery across the healthcare and life sciences ecosystem.\n\nFor more GTC Taipei sessions like this, make sure to explore our Physical AI Days programming.", "keywords": ["healthcare AI", "agentic systems", "physical AI", "robotics", "autonomous care"], "steffenKeywords": ["computational biology", "microscopy-adjacent workflows", "biomedical applications"], "grishaKeywords": ["biological data", "translational science", "computational methods", "broad impact"], "steffenScore": 9, "grishaScore": 8, "steffenGo": true, "grishaGo": false, "startIso": "2026-06-03T13:30:00+08:00", "endIso": "2026-06-03T14:15:00+08:00"}, {"filename": "stw61062-from-weeks-to-hours-gpu-native-semiconductor-simulation-in-practice.md", "dayLabel": "Wednesday, June 3, 2026", "slotLabel": "1:30 PM - 2:15 PM", "title": "From Weeks to Hours: GPU-Native Semiconductor Simulation in Practice", "speaker": "Azi Riahi", "room": "Phoenix Hall", "abstract": "Semiconductor modeling demands a multi-scale, multi-physics framework spanning electronic-structure simulations, nanometer-scale device modeling, and circuit-level analysis. Accelerated computing for semiconductor design requires substantial computational power and massive parallelism—capabilities provided by GPUs—coupled with a software ecosystem enabled by NVIDIA CUDA-X libraries. These libraries provide reusable GPU-accelerated components from quantum chemistry tools to math primitives, solvers, and AI workflows, enabling engineers to accelerate R&D while maintaining accuracy. This talk highlights CUDA-X libraries such as cuDSS and cuEST, spanning electronic structure to multi-physics simulation for modern semiconductor design. Partner examples show how these libraries streamline workflows, enable higher-fidelity simulations, support scenario analysis at scale, and cut development time and cost.\n\nFor more GTC Taipei sessions like this, make sure to explore our Physical AI Days programming.", "keywords": ["GPU simulation", "multi-physics", "accelerated computing", "semiconductor modeling"], "steffenKeywords": ["high-performance simulation", "numerical methods", "mechanistic modeling"], "grishaKeywords": ["scientific computing", "computational methods", "performance-minded modeling"], "steffenScore": 8, "grishaScore": 7, "steffenGo": false, "grishaGo": false, "startIso": "2026-06-03T13:30:00+08:00", "endIso": "2026-06-03T14:15:00+08:00"}, {"filename": "stw61020-networking-innovations-for-gigascale-ai-systems.md", "dayLabel": "Wednesday, June 3, 2026", "slotLabel": "2:30 PM - 3:15 PM", "title": "Networking Innovations for Gigascale AI Systems", "speaker": "Gilad Shainer", "room": "Room 201 D+E+F", "abstract": "As AI factories grow to hundreds of thousands—and soon millions—of interconnected GPUs, the network has become the defining architecture of large-scale AI. Achieving uncompromised performance requires fabrics that not only scale up and out within a single data center, but also scale across multiple sites with predictable latency, lossless throughput, and end-to-end resilience.\n\nIn this session, NVIDIA unveils the full breadth of networking innovations that enable the construction of gigascale AI infrastructure. Learn how advancements in networking—including ultra-high-radix switches, next-generation NVIDIA Quantum-X InfiniBand and Spectrum-X Ethernet platforms with co-packaged optics, and accelerator-optimized NVIDIA SuperNICs—deliver the performance required to train massive foundation models, deploy real-time inference pipelines, and interconnect federated AI factories globally.", "keywords": ["networking", "gigascale AI", "cluster fabrics", "AI infrastructure"], "steffenKeywords": ["important infrastructure context for large agent and simulation systems"], "grishaKeywords": ["broad strategic awareness", "systems-level understanding"], "steffenScore": 5, "grishaScore": 5, "steffenGo": false, "grishaGo": true, "startIso": "2026-06-03T14:30:00+08:00", "endIso": "2026-06-03T15:15:00+08:00"}, {"filename": "stw61036-engineering-simulation-reimagined-ai-physics-for-cae-and-semiconductor-design.md", "dayLabel": "Wednesday, June 3, 2026", "slotLabel": "2:30 PM - 3:15 PM", "title": "Engineering Simulation, Reimagined: AI Physics for CAE and Semiconductor Design", "speaker": "Rishi Ranade", "room": "Phoenix Hall", "abstract": "AI physics, powered by accelerated computing, is transforming engineering simulation to design high-performance, cost-efficient, sustainable products. This enables a new class of simulation workflows across CAE and semiconductor domains that significantly reduce turnaround time while expanding design exploration.\n\nIn this session, we'll explore NVIDIA PhysicsNeMo, which enables production-grade AI physics models to accelerate prediction and optimization across applications such as semiconductor process modeling, automotive crash simulation, and aerodynamics. We'll demonstrate how these models power real-time digital twins in NVIDIA Omniverse by combining accelerated simulation, learned surrogates, and physically based visualization.\nCombined, these capabilities position AI physics as a scalable computational layer for faster engineering workflows and next-generation industrial digital twins.\n\nFor more GTC Taipei sessions like this, make sure to explore our Physical AI Days programming.", "keywords": ["AI physics", "CAE", "engineering simulation", "surrogate models", "semiconductor design"], "steffenKeywords": ["numerical simulation", "applied math", "PBD", "mechanistic modeling"], "grishaKeywords": ["scientific ML", "dynamical systems", "modeling workflows", "cross-domain methods"], "steffenScore": 9, "grishaScore": 8, "steffenGo": true, "grishaGo": false, "startIso": "2026-06-03T14:30:00+08:00", "endIso": "2026-06-03T15:15:00+08:00"}, {"filename": "stw61015-securing-long-running-ai-agents-from-setup-to-sandboxing.md", "dayLabel": "Wednesday, June 3, 2026", "slotLabel": "3:30 PM - 4:15 PM", "title": "Securing Long‑Running AI Agents: From Setup to Sandboxing", "speaker": "Adel El Hallak; Kris Murphy", "room": "Banquet Hall", "abstract": "Explore how to securely run OpenClaw‑style, always‑on AI agents using NVIDIA NeMoClaw, an open‑source reference stack with built‑in privacy and security guardrails. We’ll dive into how to set up the runtime, apply policy‑based access controls, and add lightweight observability for safer agent management. You’ll learn practical techniques to limit file and network access, detect issues early, and strengthen agent reliability. This session helps developers and MLOps engineers confidently deploy long‑running AI agents across any environment.\n\nThis session is part of Nemotron Days: a curated set of GTC Taipei sessions focused on agentic AI, claws, and long-running agents.", "keywords": ["agent security", "sandboxing", "NeMoClaw", "OpenClaw", "always-on agents"], "steffenKeywords": ["secure scientific agents", "local tooling", "runtime controls", "policy guardrails"], "grishaKeywords": ["agent architecture", "project scaffolds", "operational safety", "workspace automation"], "steffenScore": 10, "grishaScore": 9, "steffenGo": true, "grishaGo": false, "startIso": "2026-06-03T15:30:00+08:00", "endIso": "2026-06-03T16:15:00+08:00"}, {"filename": "stw61059-a-full-stack-approach-to-building-on-premises-and-sovereign-ai-factories.md", "dayLabel": "Wednesday, June 3, 2026", "slotLabel": "3:30 PM - 4:15 PM", "title": "A Full-Stack Approach to Building On-Premises and Sovereign AI Factories", "speaker": "Nic Borensztein; Chris Stephens", "room": "Room 201 D+E+F", "abstract": "Enterprises deploying AI on premises and in sovereign environments need a complete, validated stack that spans infrastructure, orchestration, and operations. In this session, NVIDIA will share how we built our own enterprise AI factory and the key architectural decisions that enable secure, high-performance AI workloads at scale. We'll walk through the full stack—from NVIDIA Accelerating Computing hardware and software to partner software platforms, such as the Red Hat AI Factory with NVIDIA. Attendees will learn how this architecture addresses the control, compliance, and data sovereignty requirements that enterprises require to ensure sensitive workloads stay protected, from infrastructure to application.", "keywords": ["AI factories", "on-premises AI", "sovereign environments", "validated stack", "operations"], "steffenKeywords": ["infrastructure for local science agents", "controlled deployments", "durable stacks"], "grishaKeywords": ["project infrastructure", "practical deployment", "general systems design"], "steffenScore": 7, "grishaScore": 6, "steffenGo": false, "grishaGo": true, "startIso": "2026-06-03T15:30:00+08:00", "endIso": "2026-06-03T16:15:00+08:00"}, {"filename": "stw61102-from-vision-language-understanding-to-industrial-physical-ai-for-smart-ev-manufacturing-city.md", "dayLabel": "Wednesday, June 3, 2026", "slotLabel": "4:30 PM - 5:15 PM", "title": "From Vision-Language Understanding to Industrial Physical AI for Smart EV, Manufacturing, City", "speaker": "Rick Tran", "room": "Banquet Hall", "abstract": "In this talk, we introduce FoxBrain 2.0—Foxconn's next-gen vision-language foundation model, trained on a multimodal corpus spanning factory-floor egocentric video, multi-view robotic scenes, autonomous-driving footage, and proprietary industrial sources. The model is aligned via RLAIF around five physical attributes—Action, Intention, Movement, Scene, and Planning Reasoning—producing a system for vision-based SOP (VSS): a model that learns to Think → Plan → Act, aware of the physical properties of the world it operates in. We show how a general-purpose Vision-Language foundation, building on NVIDIA Nemotron 3 Nano Omni backbone, is specialized into three Foxconn Worlds: Smart EV, Smart Manufacturing, and Smart City. You’ll leave with a working blueprint for turning a general multimodal model into a domain-specialized physical AI platform—and a clear view of where industrial embodied AI is heading next.\n\nThis session is part of Nemotron Days: a curated set of GTC Taipei sessions focused on agentic AI, claws, and long-running agents.", "keywords": ["vision-language models", "industrial AI", "multimodal learning", "physical AI", "manufacturing"], "steffenKeywords": ["image analysis", "vision models", "embodied perception", "real-world systems"], "grishaKeywords": ["interactive visual systems", "multimodal modeling", "broad computational design interest"], "steffenScore": 8, "grishaScore": 7, "steffenGo": true, "grishaGo": true, "startIso": "2026-06-03T16:30:00+08:00", "endIso": "2026-06-03T17:15:00+08:00"}, {"filename": "stw61025-accelerating-quantum-computing-with-ai.md", "dayLabel": "Thursday, June 4, 2026", "slotLabel": "9:30 AM - 10:15 AM", "title": "Accelerating Quantum Computing With AI", "speaker": "Nicholas Harrigan", "room": "Room 201 D+E+F", "abstract": "Achieving useful quantum applications at scale requires significant breakthroughs across quantum algorithm and hardware design. AI and accelerated computing are proving essential for discovering new and more efficient quantum applications, calibrating quantum processors, and performing the quantum error correction needed to turn today's qubits into large-scale devices. Tomorrow's quantum-GPU supercomputers will be built and run by AI supercomputing. In this talk, we outline the latest advances at the intersection of AI and quantum computing, share NVIDIA's newest developments, and show how academia, national labs, startups, and industry are collaborating to shorten the timeline to useful quantum computing.", "keywords": ["quantum computing", "accelerated computing", "AI for science", "hardware-software co-design"], "steffenKeywords": ["general scientific computing", "future methods", "broad research signal"], "grishaKeywords": ["computational science", "ambitious frontier tech", "creative cross-pollination"], "steffenScore": 7, "grishaScore": 7, "steffenGo": true, "grishaGo": false, "startIso": "2026-06-04T09:30:00+08:00", "endIso": "2026-06-04T10:15:00+08:00"}, {"filename": "stw61051-powering-agentic-ai-with-ai-ready-data-platforms-that-turn-data-into-intelligence.md", "dayLabel": "Thursday, June 4, 2026", "slotLabel": "9:30 AM - 10:15 AM", "title": "Powering Agentic AI With AI-Ready Data Platforms That Turn Data Into Intelligence", "speaker": "Jason Hardy", "room": "Room 201 A+B+C", "abstract": "With the rise of agentic AI, streamlined and secure access to data is essential for successful deployment. Yet today, roughly 70% of AI projects fail to transition to production due to challenges with data compliance and security. To address this, enterprise storage is evolving from data delivery to platforms that also deliver knowledge and intelligence. In this session, NVIDIA will share how we are working with leading partners to build a new class of AI-native data platforms that tightly integrate accelerated compute, high-performance storage, intelligent data services, and built-in security into a unified architecture, enabling data to be prepared, secured, and served in place so intelligent agents can operate with real-time context and drive faster outcomes from proof of concept to production.", "keywords": ["agentic AI", "data platforms", "compliance", "secure access", "productionization"], "steffenKeywords": ["data plumbing for science agents", "imaging and analysis pipelines", "secure data access"], "grishaKeywords": ["computational biology data flows", "workspace automation", "project-level infrastructure"], "steffenScore": 7, "grishaScore": 8, "steffenGo": false, "grishaGo": true, "startIso": "2026-06-04T09:30:00+08:00", "endIso": "2026-06-04T10:15:00+08:00"}, {"filename": "stw61028-from-data-to-deployment-building-general-purpose-humanoid-robots.md", "dayLabel": "Thursday, June 4, 2026", "slotLabel": "10:30 AM - 11:15 AM", "title": "From Data to Deployment: Building General-Purpose Humanoid Robots", "speaker": "Spencer Huang", "room": "Banquet Hall", "abstract": "Physical AI brings intelligence to machines that must perceive, reason, and act in the real world in real time. For general-purpose humanoid robots, that means going beyond scripted behaviors to make decisions on the fly: navigating dynamic environments, manipulating diverse objects, and working safely alongside people across a range of tasks and settings.\n\nThis session provides a technical look at end-to-end workflows for building general-purpose humanoid robots with the NVIDIA Isaac GR00T open platform, powered by NVIDIA Omniverse and Cosmos technologies. It covers the full development journey—from data collection and curation to digital twin creation, high-fidelity simulation, model training and evaluation at scale, and deployment to hardware. Real-world examples will highlight how the platform helps accelerate the development of smarter, more adaptable humanoid robots.\n\nFor more GTC Taipei sessions like this, make sure to explore our Physical AI Days programming.", "keywords": ["humanoid robots", "physical AI", "real-time reasoning", "deployment"], "steffenKeywords": ["embodied intelligence", "simulation-to-real", "physical systems"], "grishaKeywords": ["creative embodied systems", "broad future-tech interest", "applied autonomy"], "steffenScore": 7, "grishaScore": 6, "steffenGo": true, "grishaGo": false, "startIso": "2026-06-04T10:30:00+08:00", "endIso": "2026-06-04T11:15:00+08:00"}, {"filename": "stw61098-scaling-ai-factories-800-vdc-architecture-development-and-deployment-for-high-density-computing.md", "dayLabel": "Thursday, June 4, 2026", "slotLabel": "10:30 AM - 11:15 AM", "title": "Scaling AI Factories: 800 VDC Architecture, Development, and Deployment for High-Density Computing", "speaker": "Jared Huntington; Mike Tu", "room": "Room 201 A+B+C", "abstract": "This session provides a deep dive into NVIDIA’s emerging 800 VDC power architecture for next-generation AI factories, from facility-level power distribution to future native 800 VDC compute racks. Building on the OCP 2025 whitepaper, the presentation highlights the industry’s shift from concept validation to execution readiness, including converged deployment architectures aligned with NVIDIA’s compute and infrastructure roadmap. It introduces a system-level design approach focused on scalability, reliability, architectural simplicity, and OEM equipment development flexibility to support next-generation high-density compute products approaching megawatt-class rack deployments. Topics include VDC deployment options, power distribution architecture, engineering validation methodology, equipment ecosystem readiness, and ongoing progress in codes, standards, and certification pathways.", "keywords": ["power architecture", "data center design", "high-density computing", "AI factories"], "steffenKeywords": ["useful only as infrastructure backdrop for larger compute systems"], "grishaKeywords": ["general importance but far from current research and tooling focus"], "steffenScore": 4, "grishaScore": 4, "steffenGo": false, "grishaGo": false, "startIso": "2026-06-04T10:30:00+08:00", "endIso": "2026-06-04T11:15:00+08:00"}, {"filename": "stw61011-accelerating-industrial-engineering-from-product-design-to-manufacturing-in-the-ai-supercomputing-era.md", "dayLabel": "Thursday, June 4, 2026", "slotLabel": "1:30 PM - 2:15 PM", "title": "Accelerating Industrial Engineering: From Product Design to Manufacturing in the AI Supercomputing Era", "speaker": "Da Yang; 辜 耀進", "room": "Room 201 A+B+C", "abstract": "Join us for an engaging session exploring the future of engineering, where cross-industry transformation and AI-driven innovation are reshaping computational workloads. Discover real-world success stories, digital twins, and ecosystem partnerships accelerating progress across semiconductor, automotive, aerospace, and energy sectors.\n\nFor more GTC Taipei sessions like this, make sure to explore our Physical AI Days programming.", "keywords": ["industrial engineering", "AI supercomputing", "digital twins", "manufacturing", "ecosystem"], "steffenKeywords": ["simulation", "digital twins", "modeling pipelines", "applied math in engineering"], "grishaKeywords": ["cross-industry computation", "creative systems view", "general strategic importance"], "steffenScore": 8, "grishaScore": 6, "steffenGo": true, "grishaGo": false, "startIso": "2026-06-04T13:30:00+08:00", "endIso": "2026-06-04T14:15:00+08:00"}, {"filename": "stw61099-sovereign-ai-agents-building-secure-always-on-enterprise-workflows.md", "dayLabel": "Thursday, June 4, 2026", "slotLabel": "1:30 PM - 2:15 PM", "title": "Sovereign AI Agents: Building Secure, Always-On Enterprise Workflows", "speaker": "Chee Mun Foong", "room": "Banquet Hall", "abstract": "This session explores how YTL AI Labs’ ILMU-Claw platform enables developers and AI practitioners to create customized, always-on AI agents powered by customized NVIDIA Nemotron models and deployed on YTL’s sovereign AI infrastructure. We'll walk through practical approaches for designing secure agent workflows, orchestrating multi-step agentic behavior, and deploying AI systems that meet enterprise, legal, and regional requirements without compromising performance or scalability. Attendees will gain a practical understanding of how to build tailored AI agents for real-world, mission-critical environments where data governance, infrastructure sovereignty, reliability, and operational control are essential.\n\nThis session is part of Nemotron Days: a curated set of GTC Taipei sessions focused on agentic AI, claws, and long-running agents.", "keywords": ["sovereign AI", "always-on agents", "secure workflows", "customized models", "infrastructure"], "steffenKeywords": ["scientific agents", "deployable workflows", "private infrastructure", "durable operations"], "grishaKeywords": ["agent platforms", "custom assistants", "infrastructure-aware design", "applied deployment"], "steffenScore": 8, "grishaScore": 8, "steffenGo": false, "grishaGo": true, "startIso": "2026-06-04T13:30:00+08:00", "endIso": "2026-06-04T14:15:00+08:00"}, {"filename": "stw61070-beyond-the-weights-a-hands-on-developer-guide-to-llm-serving-and-optimization.md", "dayLabel": "Thursday, June 4, 2026", "slotLabel": "3:30 PM - 4:15 PM", "title": "Beyond the Weights: A Hands-On Developer Guide to LLM Serving and Optimization", "speaker": "Po-Han Huang; Ankit Patel", "room": "Room 201 D+E+F", "abstract": "Deploying and serving a large language model efficiently at scale is an engineering challenge. For developers, modern inference serving is a multidimensional puzzle where decisions directly impact latency, throughput, and infrastructure costs. In this session, we'll look beyond the model weights and break down the complex realities of serving and autoscaling. We'll explore the levers developers can pull to tune their infrastructure, techniques for distributing the model across multiple GPUs, prefill-decode disaggregated serving, KV-cache reuse, and autoscaling thresholds. We’ll highlight the ecosystem of optimization tools that industry experts rely on to maximize utilization.", "keywords": ["LLM serving", "optimization", "latency", "throughput", "deployment"], "steffenKeywords": ["practical inference stack", "local tooling", "deployable science agents"], "grishaKeywords": ["agent backends", "developer ergonomics", "model operations", "broad importance"], "steffenScore": 7, "grishaScore": 7, "steffenGo": true, "grishaGo": true, "startIso": "2026-06-04T15:30:00+08:00", "endIso": "2026-06-04T16:15:00+08:00"}, {"filename": "stw61064-continual-learning-for-long-running-agents-agents-that-keep-getting-better.md", "dayLabel": "Thursday, June 4, 2026", "slotLabel": "4:30 PM - 5:15 PM", "title": "Continual Learning for Long-Running Agents: Agents That Keep Getting Better", "speaker": "Jack Min Ong", "room": "Banquet Hall", "abstract": "Long-running agents succeed or fail at the scaffold level: how orchestrators delegate to subagents, manage context, and recover from bad trajectories. Recent works such as Recursive Language Models show how much headroom still lives in inference-time scaffolding for long contexts. But scaffolds are static, and production workloads aren't. \n\nThis talk covers how we're approaching continual learning at Prime Intellect: Using trajectories agents generate in production (successful runs, failed decompositions, subagent mistakes) as training signals to continuously improve the orchestrator and its subagents. We'll cover the scaffold patterns we're scaling, how observed production data becomes a learning signal without destabilizing deployed policies, and where this points for agents that don't just run longer, but actually get better the more they run.\n\nThis session is part of Nemotron Days: a curated set of GTC Taipei sessions focused on agentic AI, claws, and long-running agents.", "keywords": ["continual learning", "long-running agents", "orchestrators", "subagents", "recovery"], "steffenKeywords": ["self-improving scientific agents", "orchestration patterns", "robust automation"], "grishaKeywords": ["agent design", "recursive systems", "continual adaptation", "project planning"], "steffenScore": 8, "grishaScore": 10, "steffenGo": false, "grishaGo": true, "startIso": "2026-06-04T16:30:00+08:00", "endIso": "2026-06-04T17:15:00+08:00"}, {"filename": "stw61066-how-to-run-open-models-and-agentic-ai-efficiently-at-the-edge.md", "dayLabel": "Thursday, June 4, 2026", "slotLabel": "4:30 PM - 5:15 PM", "title": "How to Run Open Models and Agentic AI Efficiently at the Edge", "speaker": "Chitoku Yato; Asier Arranz", "room": "Room 201 A+B+C", "abstract": "The edge is no longer just an inference endpoint—it's becoming an agent host. In this session, we'll highlight new software capabilities for building AI agents across the NVIDIA Jetson platform—from Orin to Thor. Our experts will show how NVIDIA NemoClaw on Jetson delivers a secure, enterprise-grade foundation for always-on physical AI agents without cloud dependency. You’ll learn practical techniques—from leveraging a lean Yocto-based OS to full-stack memory optimizations—designed to unlock more headroom for running larger models, more pipelines, and more capable agents on small edge devices. Together, these elements help developers accelerate physical AI application deployment while reducing total cost of ownership at scale. Whether you’re building humanoid robots, medical devices, or factory automation systems, you’ll gain concrete patterns to take agentic AI into production.\n\nFor more GTC Taipei sessions like this, make sure to explore our Physical AI Days programming.", "keywords": ["edge AI", "open models", "agentic AI", "Jetson", "deployment"], "steffenKeywords": ["practical agent deployment", "instrumentation", "embedded workflows"], "grishaKeywords": ["personal assistants", "lightweight deployment", "applied agent systems"], "steffenScore": 7, "grishaScore": 7, "steffenGo": true, "grishaGo": false, "startIso": "2026-06-04T16:30:00+08:00", "endIso": "2026-06-04T17:15:00+08:00"}]</script>
+  <script>
+    const talks = JSON.parse(document.getElementById('talk-data').textContent);
+    const root = document.getElementById('appRoot');
+    const tbody = document.getElementById('plannerBody');
+    const dialog = document.getElementById('detailDialog');
+    const modalContent = document.getElementById('modalContent');
+    const toggleSteffen = document.getElementById('toggleSteffen');
+    const toggleGrisha = document.getElementById('toggleGrisha');
+    const focusNow = document.getElementById('focusNow');
+    const jumpNow = document.getElementById('jumpNow');
+    const expandNow = document.getElementById('expandNow');
+
+    const groupedBySlot = new Map();
+    talks.forEach(talk => {
+      const key = `${talk.dayLabel}|${talk.slotLabel}`;
+      if (!groupedBySlot.has(key)) groupedBySlot.set(key, []);
+      groupedBySlot.get(key).push(talk);
+    });
+
+    const fmtTaipei = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Taipei', weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+    });
+
+    function personReason(person, talk) {
+      const score = person === 'steffen' ? talk.steffenScore : talk.grishaScore;
+      const go = person === 'steffen' ? talk.steffenGo : talk.grishaGo;
+      const focus = person === 'steffen' ? talk.steffenKeywords : talk.grishaKeywords;
+      const slotTalks = groupedBySlot.get(`${talk.dayLabel}|${talk.slotLabel}`) || [];
+      const competing = slotTalks.find(other => other.filename !== talk.filename && (person === 'steffen' ? other.steffenGo : other.grishaGo));
+      const focusLead = focus[0] || 'broad fit';
+      if (go && score >= 9) return `High-priority fit. This is the strongest use of the slot for ${person}, especially around ${focusLead.toLowerCase()}.`;
+      if (go && score >= 7) return `Good slot fit. Worth attending because it connects well to ${focusLead.toLowerCase()} while still being broadly important.`;
+      if (!go && competing) return `Skip this one for ${person}. Another overlapping talk is a cleaner fit for this slot.`;
+      if (!go && score >= 7) return `Strong talk, but not the best use of this slot for ${person}. Keep as a backup if plans shift.`;
+      return `Useful context, but lower leverage for ${person} than the other options around it.`;
+    }
+
+    function combinedClass(talk) {
+      if (talk.steffenGo && talk.grishaGo) return 'attend-both';
+      if (talk.steffenGo) return 'attend-steffen';
+      if (talk.grishaGo) return 'attend-grisha';
+      return '';
+    }
+
+    function decisionBadge(talk) {
+      if (talk.steffenGo && talk.grishaGo) return '<span class="badge both">both should attend</span>';
+      if (talk.steffenGo) return '<span class="badge steffen">Steffen focus</span>';
+      if (talk.grishaGo) return '<span class="badge grisha">Grisha focus</span>';
+      return '<span class="badge">backup only</span>';
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderPlanner() {
+      tbody.innerHTML = talks.map((talk, index) => `
+        <tr id="row-${index}" data-start="${talk.startIso}" data-end="${talk.endIso}">
+          <td class="date-cell">
+            <div class="date-card">
+              <div class="day-tag">${escapeHtml(talk.dayLabel)}</div>
+              <div class="slot">${escapeHtml(talk.slotLabel)}</div>
+              <div class="tiny">Taipei time · ${escapeHtml(talk.room)}</div>
+            </div>
+          </td>
+          <td class="info-cell">
+            <article class="talk-card ${combinedClass(talk)}" data-filename="${talk.filename}">
+              <div class="talk-head">
+                <div>
+                  <h2 class="talk-title">${escapeHtml(talk.title)}</h2>
+                  <div class="meta">${escapeHtml(talk.speaker)} · <strong>${escapeHtml(talk.room)}</strong></div>
+                </div>
+                <div class="badges">${decisionBadge(talk)}</div>
+              </div>
+              <p class="preview">${escapeHtml(talk.abstract.slice(0, 210).trim())}${talk.abstract.length > 210 ? '…' : ''}</p>
+              <div class="badges">
+                ${talk.keywords.slice(0, 3).map(k => `<span class="badge">${escapeHtml(k)}</span>`).join('')}
+              </div>
+              <div class="person-grid">
+                <section class="person steffen ${talk.steffenGo ? 'go' : 'no'}">
+                  <div class="person-head">
+                    <div class="person-name">Steffen</div>
+                    <div class="score">score ${talk.steffenScore}/10</div>
+                  </div>
+                  <div class="decision">${talk.steffenGo ? 'Go' : 'Skip'}</div>
+                  <p class="reason">${escapeHtml(personReason('steffen', talk))}</p>
+                  <div class="keyline">${talk.steffenKeywords.slice(0, 3).map(k => `<span class="chip">${escapeHtml(k)}</span>`).join('')}</div>
+                </section>
+                <section class="person grisha ${talk.grishaGo ? 'go' : 'no'}">
+                  <div class="person-head">
+                    <div class="person-name">Grisha</div>
+                    <div class="score">score ${talk.grishaScore}/10</div>
+                  </div>
+                  <div class="decision">${talk.grishaGo ? 'Go' : 'Skip'}</div>
+                  <p class="reason">${escapeHtml(personReason('grisha', talk))}</p>
+                  <div class="keyline">${talk.grishaKeywords.slice(0, 3).map(k => `<span class="chip">${escapeHtml(k)}</span>`).join('')}</div>
+                </section>
+              </div>
+              <div class="info-actions">
+                <button class="more" data-open="${talk.filename}">Open full detail</button>
+              </div>
+            </article>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openTalk(filename) {
+      const talk = talks.find(item => item.filename === filename);
+      if (!talk) return;
+      const slotTalks = groupedBySlot.get(`${talk.dayLabel}|${talk.slotLabel}`) || [];
+      const otherTitles = slotTalks.filter(item => item.filename !== talk.filename).map(item => item.title);
+      modalContent.innerHTML = `
+        <div class="modal-top">
+          <div><h2>${escapeHtml(talk.title)}</h2></div>
+          <button class="close" data-close-dialog>Close</button>
+        </div>
+        <div class="modal-meta">${escapeHtml(talk.dayLabel)} · ${escapeHtml(talk.slotLabel)} · ${escapeHtml(talk.speaker)} · ${escapeHtml(talk.room)}</div>
+        <div class="modal-grid">
+          <section class="modal-section">
+            <h3>Abstract</h3>
+            <p>${escapeHtml(talk.abstract).replace(/
+
+/g, '</p><p>').replace(/
+/g, '<br>')}</p>
+            <h3 style="margin-top:20px;">Talk keywords</h3>
+            <div class="keyline">${talk.keywords.map(k => `<span class="chip">${escapeHtml(k)}</span>`).join('')}</div>
+            <div class="footer-note">Other talks in this slot: ${otherTitles.length ? escapeHtml(otherTitles.join(' · ')) : 'none'}</div>
+          </section>
+          <section class="modal-section">
+            <h3>Profile fit</h3>
+            <div class="stack">
+              <div class="rationale ${talk.steffenGo ? 'go steffen' : ''}">
+                <strong>Steffen · ${talk.steffenGo ? 'Go' : 'Skip'} · ${talk.steffenScore}/10</strong>
+                <p style="margin-top:8px;">${escapeHtml(personReason('steffen', talk))}</p>
+                <div class="keyline" style="margin-top:10px;">${talk.steffenKeywords.map(k => `<span class="chip">${escapeHtml(k)}</span>`).join('')}</div>
+              </div>
+              <div class="rationale ${talk.grishaGo ? 'go grisha' : ''}">
+                <strong>Grisha · ${talk.grishaGo ? 'Go' : 'Skip'} · ${talk.grishaScore}/10</strong>
+                <p style="margin-top:8px;">${escapeHtml(personReason('grisha', talk))}</p>
+                <div class="keyline" style="margin-top:10px;">${talk.grishaKeywords.map(k => `<span class="chip">${escapeHtml(k)}</span>`).join('')}</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      `;
+      dialog.showModal();
+    }
+
+    function taipeiNowDate() {
+      const parts = new Intl.DateTimeFormat('sv-SE', {
+        timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      }).formatToParts(new Date()).reduce((acc, part) => {
+        acc[part.type] = part.value;
+        return acc;
+      }, {});
+      return new Date(`${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}+08:00`);
+    }
+
+    function findFocusRow() {
+      const now = taipeiNowDate();
+      let activeIndex = talks.findIndex(t => now >= new Date(t.startIso) && now <= new Date(t.endIso));
+      if (activeIndex >= 0) return { index: activeIndex, mode: 'live', now };
+      let nextIndex = talks.findIndex(t => new Date(t.startIso) > now);
+      if (nextIndex >= 0) return { index: nextIndex, mode: 'next', now };
+      return { index: talks.length - 1, mode: 'done', now };
+    }
+
+    function updateFocus() {
+      const info = findFocusRow();
+      document.querySelectorAll('.talk-card').forEach(card => card.classList.remove('active-now'));
+      const row = document.getElementById(`row-${info.index}`);
+      if (row) row.querySelector('.talk-card').classList.add('active-now');
+      const talk = talks[info.index];
+      const nowLabel = fmtTaipei.format(info.now);
+      const modeText = info.mode === 'live'
+        ? `Live now in Taipei: ${talk.title}`
+        : info.mode === 'next'
+          ? `Next up: ${talk.slotLabel} · ${talk.title}`
+          : `Conference block finished. Last tracked talk: ${talk.title}`;
+      focusNow.textContent = `${nowLabel} · ${modeText}`;
+      return info;
+    }
+
+    function jumpToFocus(openModal) {
+      const info = updateFocus();
+      const row = document.getElementById(`row-${info.index}`);
+      if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (openModal) openTalk(talks[info.index].filename);
+    }
+
+    function syncToggles() {
+      root.classList.toggle('hide-steffen', !toggleSteffen.checked);
+      root.classList.toggle('hide-grisha', !toggleGrisha.checked);
+    }
+
+    renderPlanner();
+    syncToggles();
+    updateFocus();
+    setInterval(updateFocus, 30000);
+
+    toggleSteffen.addEventListener('change', syncToggles);
+    toggleGrisha.addEventListener('change', syncToggles);
+    jumpNow.addEventListener('click', () => jumpToFocus(false));
+    expandNow.addEventListener('click', () => jumpToFocus(true));
+
+    document.addEventListener('click', event => {
+      const openBtn = event.target.closest('[data-open]');
+      if (openBtn) openTalk(openBtn.dataset.open);
+      if (event.target.closest('[data-close-dialog]')) dialog.close();
+    });
+
+    dialog.addEventListener('click', event => {
+      const rect = dialog.getBoundingClientRect();
+      const inside = rect.top <= event.clientY && event.clientY <= rect.top + rect.height && rect.left <= event.clientX && event.clientX <= rect.left + rect.width;
+      if (!inside) dialog.close();
+    });
+  </script>
+</body>
+</html>
