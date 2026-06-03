@@ -347,10 +347,7 @@
         <div class="modal-grid">
           <section class="modal-section">
             <h3>Abstract</h3>
-            <p>${escapeHtml(talk.abstract).replace(/
-
-/g, '</p><p>').replace(/
-/g, '<br>')}</p>
+            <p>${escapeHtml(talk.abstract).replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>
             <h3 style="margin-top:20px;">Talk keywords</h3>
             <div class="keyline">${talk.keywords.map(k => `<span class="chip">${escapeHtml(k)}</span>`).join('')}</div>
             <div class="footer-note">Other talks in this slot: ${otherTitles.length ? escapeHtml(otherTitles.join(' · ')) : 'none'}</div>
