@@ -36,19 +36,48 @@
     .shell { max-width: 1280px; margin: 0 auto; padding: 24px 18px 80px; }
     .hero {
       position: sticky; top: 0; z-index: 20;
-      margin: -24px -18px 20px; padding: 18px 18px 16px;
+      margin: -24px -18px 20px; padding: 14px 18px 12px;
       backdrop-filter: blur(14px);
       background: linear-gradient(180deg, rgba(252,247,239,0.92), rgba(252,247,239,0.76));
       border-bottom: 1px solid rgba(31,35,48,0.08);
+      transition: padding 180ms ease, background 180ms ease, box-shadow 180ms ease;
     }
-    .hero-grid { display: grid; gap: 16px; grid-template-columns: 1.3fr 1fr; align-items: end; }
+    .hero-grid { display: grid; gap: 12px; grid-template-columns: 1.3fr 1fr; align-items: end; }
+    .hero-main {
+      display: grid;
+      gap: 12px;
+      transition: opacity 180ms ease, max-height 180ms ease, transform 180ms ease, margin 180ms ease;
+      max-height: 240px;
+      overflow: hidden;
+    }
+    .hero-stickybar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .hero.compact {
+      padding-top: 10px;
+      padding-bottom: 10px;
+      box-shadow: 0 10px 24px rgba(72, 54, 21, 0.08);
+    }
+    .hero.compact .hero-main {
+      opacity: 0;
+      max-height: 0;
+      transform: translateY(-8px);
+      margin: 0;
+      pointer-events: none;
+    }
+    .hero.compact .hero-stickybar {
+      display: flex;
+    }
     .eyebrow {
       display: inline-flex; align-items: center; gap: 8px;
-      padding: 8px 12px; border-radius: 999px;
+      padding: 7px 10px; border-radius: 999px;
       background: rgba(31,35,48,0.06); color: var(--muted); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
     }
     h1 {
-      margin: 14px 0 8px;
+      margin: 10px 0 6px;
       font-family: Georgia, "Times New Roman", serif;
       font-size: clamp(2rem, 4vw, 3.5rem);
       line-height: 0.96;
@@ -57,6 +86,31 @@
     }
     .hero p { margin: 0; color: #4b5565; max-width: 62ch; line-height: 1.5; }
     .toolbar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; align-items: center; }
+    .sticky-title {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      min-width: 0;
+    }
+    .sticky-title strong {
+      font-size: 15px;
+      white-space: nowrap;
+    }
+    .sticky-title span {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sticky-tools {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
     .toggle {
       display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px;
       border-radius: 999px; background: var(--panel-strong); border: 1px solid var(--line); box-shadow: var(--shadow);
@@ -72,6 +126,19 @@
     .focusbox strong { display: block; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: #5642b9; margin-bottom: 4px; }
     .focusbox span { display: block; font-size: 13px; color: #3b4260; line-height: 1.4; }
     .focus-actions { display: flex; gap: 8px; align-items: center; }
+    .focus-pill {
+      max-width: 560px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(115,86,255,0.18);
+      background: linear-gradient(135deg, rgba(115,86,255,0.1), rgba(255,255,255,0.9));
+      color: #3b4260;
+      font-size: 13px;
+      line-height: 1.35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     button { appearance: none; border: 0; cursor: pointer; font: inherit; color: inherit; }
     .jump {
       padding: 11px 14px; border-radius: 999px;
@@ -93,7 +160,7 @@
     tbody tr:last-child { border-bottom: 0; }
     td { vertical-align: top; }
     .date-cell { padding: 18px 16px; background: rgba(255,255,255,0.4); }
-    .date-card { position: sticky; top: 122px; }
+    .date-card { position: sticky; top: 92px; }
     .day-tag { font-size: 12px; font-weight: 700; color: #8a5a23; text-transform: uppercase; letter-spacing: 0.06em; }
     .slot { margin-top: 10px; font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
     .tiny { margin-top: 6px; color: var(--muted); font-size: 13px; }
@@ -158,10 +225,13 @@
       colgroup col:first-child { width: 150px; }
       .modal-grid { grid-template-columns: 1fr; }
       .modal-section + .modal-section { border-left: 0; border-top: 1px solid var(--line); }
+      .hero-stickybar { flex-direction: column; align-items: stretch; }
+      .sticky-tools { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+      .focus-pill { max-width: none; width: 100%; }
     }
     @media (max-width: 720px) {
       .shell { padding: 14px 10px 54px; }
-      .hero { margin: -14px -10px 14px; padding: 14px 10px 12px; }
+      .hero { margin: -14px -10px 14px; padding: 12px 10px 10px; }
       .table-wrap { border-radius: 18px; }
       table, tbody, tr, td { display: block; width: 100%; }
       thead, colgroup { display: none; }
@@ -172,35 +242,51 @@
       .focusbox { min-width: 0; width: 100%; }
       .focus-actions { width: 100%; justify-content: stretch; }
       .jump, .subtle { flex: 1; text-align: center; }
+      .sticky-title { display: block; }
+      .sticky-title strong, .sticky-title span { display: block; white-space: normal; }
+      .hero.compact .hero-stickybar { gap: 10px; }
     }
   </style>
 </head>
 <body>
   <div class="shell" id="appRoot">
-    <div class="hero">
-      <div class="hero-grid">
-        <div>
-          <span class="eyebrow">GTC Taipei 2026 · English Talks Planner</span>
-          <h1>Steffen and Grisha schedule map</h1>
-          <p>A compact table for the English talks, tuned to your actual profiles. Colors show who should attend. Tap into any row for the full abstract, rationale, and the overlap-aware decision logic.</p>
+    <div class="hero" id="hero">
+      <div class="hero-main">
+        <div class="hero-grid">
+          <div>
+            <span class="eyebrow">GTC Taipei 2026 · English Talks Planner</span>
+            <h1>Steffen and Grisha schedule map</h1>
+            <p>A compact table for the English talks, tuned to your actual profiles. Colors show who should attend. Tap into any row for the full abstract, rationale, and the overlap-aware decision logic.</p>
+          </div>
+          <div class="toolbar">
+            <label class="toggle"><input type="checkbox" id="toggleSteffen" checked> Show Steffen</label>
+            <label class="toggle"><input type="checkbox" id="toggleGrisha" checked> Show Grisha</label>
+            <div class="focusbox">
+              <strong>Current Taipei Focus</strong>
+              <span id="focusNow">Checking local event time…</span>
+            </div>
+            <div class="focus-actions">
+              <button class="jump" id="jumpNow">Jump to now</button>
+              <button class="subtle" id="expandNow">Open current detail</button>
+            </div>
+          </div>
         </div>
-        <div class="toolbar">
-          <label class="toggle"><input type="checkbox" id="toggleSteffen" checked> Show Steffen</label>
-          <label class="toggle"><input type="checkbox" id="toggleGrisha" checked> Show Grisha</label>
-          <div class="focusbox">
-            <strong>Current Taipei Focus</strong>
-            <span id="focusNow">Checking local event time…</span>
-          </div>
-          <div class="focus-actions">
-            <button class="jump" id="jumpNow">Jump to now</button>
-            <button class="subtle" id="expandNow">Open current detail</button>
-          </div>
+        <div class="legend">
+          <span class="badge steffen">Steffen should attend</span>
+          <span class="badge grisha">Grisha should attend</span>
+          <span class="badge both">best shared pick</span>
         </div>
       </div>
-      <div class="legend">
-        <span class="badge steffen">Steffen should attend</span>
-        <span class="badge grisha">Grisha should attend</span>
-        <span class="badge both">best shared pick</span>
+      <div class="hero-stickybar">
+        <div class="sticky-title">
+          <strong>GTC planner</strong>
+          <span>Steffen and Grisha schedule map</span>
+        </div>
+        <div class="sticky-tools">
+          <div class="focus-pill" id="focusNowCompact">Checking local event time…</div>
+          <button class="jump" id="jumpNowCompact">Jump to now</button>
+          <button class="subtle" id="expandNowCompact">Open current detail</button>
+        </div>
       </div>
     </div>
 
@@ -224,14 +310,18 @@
   <script>
     const talks = JSON.parse(document.getElementById('talk-data').textContent);
     const root = document.getElementById('appRoot');
+    const hero = document.getElementById('hero');
     const tbody = document.getElementById('plannerBody');
     const dialog = document.getElementById('detailDialog');
     const modalContent = document.getElementById('modalContent');
     const toggleSteffen = document.getElementById('toggleSteffen');
     const toggleGrisha = document.getElementById('toggleGrisha');
     const focusNow = document.getElementById('focusNow');
+    const focusNowCompact = document.getElementById('focusNowCompact');
     const jumpNow = document.getElementById('jumpNow');
+    const jumpNowCompact = document.getElementById('jumpNowCompact');
     const expandNow = document.getElementById('expandNow');
+    const expandNowCompact = document.getElementById('expandNowCompact');
 
     const groupedBySlot = new Map();
     talks.forEach(talk => {
@@ -405,7 +495,12 @@
           ? `Next up: ${talk.slotLabel} · ${talk.title}`
           : `Conference block finished. Last tracked talk: ${talk.title}`;
       focusNow.textContent = `${nowLabel} · ${modeText}`;
+      focusNowCompact.textContent = modeText;
       return info;
+    }
+
+    function syncHeroState() {
+      hero.classList.toggle('compact', window.scrollY > 96);
     }
 
     function jumpToFocus(openModal) {
@@ -428,7 +523,12 @@
     toggleSteffen.addEventListener('change', syncToggles);
     toggleGrisha.addEventListener('change', syncToggles);
     jumpNow.addEventListener('click', () => jumpToFocus(false));
+    jumpNowCompact.addEventListener('click', () => jumpToFocus(false));
     expandNow.addEventListener('click', () => jumpToFocus(true));
+    expandNowCompact.addEventListener('click', () => jumpToFocus(true));
+    window.addEventListener('scroll', syncHeroState, { passive: true });
+    window.addEventListener('resize', syncHeroState);
+    syncHeroState();
 
     document.addEventListener('click', event => {
       const openBtn = event.target.closest('[data-open]');
